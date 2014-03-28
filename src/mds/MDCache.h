@@ -351,12 +351,12 @@ protected:
   void discard_delayed_resolve(int who);
   void maybe_resolve_finish();
   void disambiguate_imports();
-  void recalc_auth_bits();
   void trim_unlinked_inodes();
   void add_uncommitted_slave_update(metareqid_t reqid, int master, MDSlaveUpdate*);
   void finish_uncommitted_slave_update(metareqid_t reqid, int master);
   MDSlaveUpdate* get_uncommitted_slave_update(metareqid_t reqid, int master);
 public:
+  void recalc_auth_bits(bool resolve);
   void remove_inode_recursive(CInode *in);
 
   bool is_ambiguous_slave_update(metareqid_t reqid, int master) {
