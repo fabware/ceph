@@ -58,7 +58,13 @@ ceph osd pool create cache2 2
 ceph osd tier add data cache
 ceph osd tier add data cache2
 expect_false ceph osd tier add metadata cache
+# test some state transitions
 ceph osd tier cache-mode cache writeback
+ceph osd tier cache-mode cache forward
+ceph osd tier cache-mode cache readonly
+ceph osd tier cache-mode cache forward
+ceph osd tier cache-mode cache writeback
+expect_false ceph osd tier cache-mode cache none
 ceph osd tier cache-mode cache readonly
 TRIES=0
 while ! ceph osd pool set cache pg_num 3 --yes-i-really-mean-it 2>$TMPFILE

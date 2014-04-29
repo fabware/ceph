@@ -5140,6 +5140,35 @@ done:
       goto reply;
     }
 
+    /* Mode description:
+     *
+     *  none:       No cache-mode defined
+     *  forward:    Forward all reads and writes to base pool
+     *  writeback:  Cache writes, promote reads from base pool
+     *  readonly:   Forward writes to base pool
+     *
+     * Hence, these are the allowed transitions:
+     *
+     *  none -> any
+     *  forward -> any
+     *  writeback -> forward || writeback -> readonly
+     *  readonly -> any
+     */
+
+    // We check if the transition is valid against the current pool mode, as
+    // it is the only committed state thus far.  We will blantly squash
+    // whatever mode is on the pending state.
+
+    if (p->cache_mode == pg_pool_t::CACHEMODE_WRITEBACK &&
+        mode == pg_pool_t::CACHEMODE_NONE) {
+      // this is the only transition we shall not allow
+      ss << "unable to set cache-mode '" << pg_pool_t::get_cache_mode_name(mode)
+         << "' on pool '" << poolstr << "' (currently set to '"
+         << pg_pool_t::get_cache_mode_name(p->cache_mode) << "')";
+      err = -EINVAL;
+      goto reply;
+    }
+
     // go
     pending_inc.get_new_pool(pool_id, p)->cache_mode = mode;
     ss << "set cache-mode for pool '" << poolstr
